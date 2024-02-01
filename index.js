@@ -21,23 +21,19 @@ class AsianLoad {
     async extract(req, res) {
         const url = new URL(req.query.url);
         const cacheKey = url.href;
-        const wsres = await this.client.get(this.proxy_url + url);
-        const ws$ = cheerio.load(wsres.data);
-
-        const videoUrl = new URL("https:" + ws$('li.kvid').attr('data-video'));
-
-        // Generate cache key based on request URL
-
 
         // Check if the response is cached
         const cachedResponse = cache.get(cacheKey);
-        console.log(cachedResponse);
         if (cachedResponse) {
             console.log('Cache hit!');
             res.json(cachedResponse);
             return;
         }
 
+        const wsres = await this.client.get(this.proxy_url + url);
+        const ws$ = cheerio.load(wsres.data);
+
+        const videoUrl = new URL("https:" + ws$('li.kvid').attr('data-video'));
 
         const res1 = await this.client.get(videoUrl.href);
 
