@@ -15,22 +15,30 @@ class AsianLoad {
             iv: CryptoJS.enc.Utf8.parse('9262859232435825'),
         };
         this.client = axios;
-        this.cacheDuration = 60; // Cache duration in seconds (e.g., 10 minutes)
+        this.cacheDuration = 120; // Cache duration in seconds (e.g., 10 minutes)
     }
 
     async extract(req, res) {
-        const videoUrl = new URL(req.query.videoUrl);
-        const cacheKey = videoUrl.href; // Generate cache key based on request URL
+        const url = new URL(req.query.url);
+        const wsres = await this.client.get(this.proxy_url + url);
+        const ws$ = cheerio.load(wsres.data);
+
+        const videoUrl = new URL("https:" + ws$('li.kvid').attr('data-video'));
+
+        const cacheKey = url.href; // Generate cache key based on request URL
+
 
         // Check if the response is cached
         const cachedResponse = cache.get(cacheKey);
         if (cachedResponse) {
-            // console.log('Cache hit!');
+            console.log('Cache hit!');
             res.json(cachedResponse);
             return;
         }
 
-        const res1 = await this.client.get(this.proxy_url + videoUrl.href);
+
+        const res1 = await this.client.get(videoUrl.href);
+
         const $ = cheerio.load(res1.data);
 
         const encryptedParams = await this.generateEncryptedAjaxParams($, videoUrl.searchParams.get('id') ?? '');
