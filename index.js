@@ -30,6 +30,7 @@ class AsianLoad {
 
         // Check if the response is cached
         const cachedResponse = cache.get(cacheKey);
+        console.log(cachedResponse);
         if (cachedResponse) {
             console.log('Cache hit!');
             res.json(cachedResponse);
